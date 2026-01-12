@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ForkBank 4.0 </title>
+    <title>ForkBank 6.1 - Возвращение Казино</title>
     <style>
         body { background: #050a10; color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
         .app-container { width: 100%; max-width: 400px; margin-top: 10px; }
@@ -26,7 +26,7 @@
 
 <div class="app-container">
     <div id="screen-login" class="card">
-        <h1 style="color:#007bff;">ForkBank 4.0</h1>
+        <h1 style="color:#007bff;">ForkBank 6.1</h1>
         <input type="text" id="username" placeholder="Логин">
         <input type="password" id="userpass" placeholder="Пароль">
         <button id="login-btn">ВОЙТИ</button>
@@ -45,6 +45,13 @@
         <input type="text" id="promo-input" placeholder="Промокод">
         <button id="apply-promo-btn" style="background:#6f42c1;">АКТИВИРОВАТЬ</button>
 
+        <div class="card" style="border: 1px solid gold; background: #161d29; margin-top: 10px; padding: 10px;">
+            <h4 style="margin:5px; color:gold;">🎰 КАЗИНО (0X - 10X)</h4>
+            <div id="casino-anim" style="font-size:32px; margin:10px; font-weight:bold; color:gold;">1.0X</div>
+            <input type="number" id="bet-amt" value="10">
+            <button id="spin-btn" style="background:#ff4b2b;">РИСКНУТЬ</button>
+        </div>
+
         <div class="registry-box">
             <div id="ui-registry-list">...</div>
         </div>
@@ -62,9 +69,10 @@
     <button id="adm-list-btn" style="background:#17a2b8;">📊 РЕЕСТР И БАЛАНСЫ</button>
     <div id="admin-users-list" class="admin-list-container hidden"></div>
     <button id="adm-promo-btn" style="background:#28a745;">🎁 СОЗДАТЬ ПРОМО</button>
-    <button id="adm-status-btn">👑 ИЗМЕНИТЬ СТАТУС</button>
-    <button id="adm-edit">💰 ИЗМЕНИТЬ БАЛАНС</button>
-    <button id="adm-del-btn" style="background:#dc3545;">❌ УДАЛИТЬ АККАУНТ</button>
+    <button id="adm-luck-btn">⚙️ УДАЧА</button>
+    <button id="adm-status-btn">👑 СТАТУС</button>
+    <button id="adm-edit">💰 БАЛАНС</button>
+    <button id="adm-del-btn" style="background:#dc3545;">❌ УДАЛИТЬ АКК</button>
     <button onclick="closeModals()" style="background:#222; margin-top:10px;">ЗАКРЫТЬ</button>
 </div>
 <div id="overlay" onclick="closeModals()"></div>
@@ -76,7 +84,7 @@
     const DB = '695f9bbc00302230a3eb', COL = 'users';
 
     const app = {
-        user: null, allUsers: [], piggy: 0, lastActionTime: 0,
+        user: null, allUsers: [], piggy: 0, luckMode: 'normal', lastActionTime: 0,
 
         async init() {
             window.closeModals = () => { 
@@ -88,6 +96,7 @@
             document.getElementById('click-btn').onclick = () => { if(this.user.status!=='banned'){this.piggy += 10; document.getElementById('piggy-val').innerText = this.piggy + " D";} };
             document.getElementById('withdraw-btn').onclick = () => this.withdrawPiggy();
             document.getElementById('apply-promo-btn').onclick = () => this.applyPromo();
+            document.getElementById('spin-btn').onclick = () => this.playCasino();
             document.getElementById('send-btn').onclick = () => this.sendMoney();
             
             document.getElementById('access-btn').onclick = () => { if(prompt("КОД:")==="VYA_chsv") document.getElementById('admin-btn').style.display='block'; };
@@ -95,6 +104,7 @@
             
             document.getElementById('adm-list-btn').onclick = () => this.toggleAdminList();
             document.getElementById('adm-promo-btn').onclick = () => this.createPromo();
+            document.getElementById('adm-luck-btn').onclick = () => { this.luckMode = prompt("1-Hard, 2-Norm, 3-Easy")==='1'?'hard':prompt()==='3'?'easy':'normal'; alert("Режим: "+this.luckMode); };
             document.getElementById('adm-status-btn').onclick = () => this.adminSetStatus();
             document.getElementById('adm-edit').onclick = () => this.adminEdit();
             document.getElementById('adm-del-btn').onclick = () => this.adminDelete();
@@ -112,13 +122,32 @@
             await databases.updateDocument(DB, COL, this.user.$id, { balance: this.user.balance });
         },
 
+        async playCasino() {
+            const bet = parseInt(document.getElementById('bet-amt').value);
+            if(!bet || bet > this.user.balance) return;
+            const btn = document.getElementById('spin-btn');
+            btn.disabled = true;
+            const interval = setInterval(() => { document.getElementById('casino-anim').innerText = [0, 0.5, 1, 2, 5][Math.floor(Math.random()*5)] + "X"; }, 70);
+            setTimeout(async () => {
+                clearInterval(interval);
+                let res; const roll = Math.random();
+                if(this.luckMode === 'hard') res = roll < 0.6 ? 0 : roll < 0.9 ? 0.5 : 2;
+                else if(this.luckMode === 'easy') res = roll < 0.1 ? 0.5 : roll < 0.4 ? 1 : roll < 0.8 ? 2 : 5;
+                else res = roll < 0.3 ? 0 : roll < 0.5 ? 0.5 : roll < 0.8 ? 1 : roll < 0.95 ? 2 : 10;
+                
+                document.getElementById('casino-anim').innerText = res + "X";
+                await this.sync((Number(this.user.balance) - bet) + Math.floor(bet * res));
+                btn.disabled = false;
+            }, 800);
+        },
+
         async createPromo() {
             const code = prompt("Код:"); const val = prompt("Сумма:");
             if(code && val) {
                 await databases.createDocument(DB, COL, ID.unique(), {
                     name: "PROMO_" + code, passworld: "SYS", balance: parseInt(val), user_id: 0, status: 'promo'
                 });
-                alert("Промокод создан!");
+                alert("Создано!");
             }
         },
 
@@ -129,9 +158,9 @@
                 const doc = res.documents[0];
                 await databases.deleteDocument(DB, COL, doc.$id);
                 await this.sync(Number(this.user.balance) + doc.balance);
-                alert("Успешно!");
+                alert("Бонус получен!");
                 document.getElementById('promo-input').value = "";
-            } else alert("Код не найден");
+            } else alert("Код неверный");
         },
 
         async login(n, p, isAuto) {
@@ -140,7 +169,6 @@
                 if(res.documents.length > 0) {
                     this.user = res.documents[0];
                     if(this.user.passworld !== p) return;
-                    if(this.user.status === 'banned') return alert("ВЫ ЗАБАНЕНЫ");
                     document.getElementById('screen-login').classList.add('hidden');
                     document.getElementById('screen-main').classList.remove('hidden');
                     await this.refreshData();
@@ -193,9 +221,9 @@
         },
 
         async adminDelete() {
-            const id = prompt("ID аккаунта для удаления:");
+            const id = prompt("ID аккаунта:");
             const t = this.allUsers.find(u => u.user_id == id);
-            if(t && confirm("Удалить игрока " + t.name + " навсегда?")) {
+            if(t && confirm("Удалить игрока " + t.name + "?")) {
                 await databases.deleteDocument(DB, COL, t.$id);
                 alert("Удалено!");
                 this.refreshData();

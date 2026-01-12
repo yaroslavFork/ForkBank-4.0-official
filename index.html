@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>ForkBank</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ForkBank 5.6 - Контроль Балансов</title>
+  <style>
+    body {
+      background: #050a10;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 10px;
+    }
+
+    .card {
+      background: #101825;
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid #1d2b41;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      background: #000;
+      color: white;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 5px 0;
+      border-radius: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      filter: brightness(1.2);
+    }
+
+    .balance-box {
+      font-size: 42px;
+      color: #00ffcc;
+      margin: 5px 0;
+      font-weight: bold;
+      text-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    }
+
+    .status-vip {
+      color: gold !important;
+      font-weight: bold;
+      text-shadow: 0 0 5px gold;
+    }
+
+    .clicker-section {
+      background: #161d29;
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid #007bff;
+    }
+
+    .registry-box {
+      background: #0a0f18;
+      border: 1px solid #1d2b41;
+      border-radius: 10px;
+      margin: 20px 0 10px 0;
+      padding: 10px;
+      max-height: 100px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .registry-title {
+      font-size: 10px;
+      color: #555;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .registry-item {
+      font-size: 11px;
+      color: #aaa;
+      padding: 3px 0;
+      border-bottom: 1px solid #161d29;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .registry-item span {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    #admin-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: gold;
+      color: black;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      font-size: 24px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 350px;
+      background: #1c2536;
+      border: 2px solid gold;
+      border-radius: 20px;
+      z-index: 2000;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1500;
+    }
+
+    /* Стили для админ-списка */
+    .admin-list-container {
+      background: #000;
+      border-radius: 10px;
+      padding: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      text-align: left;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+
+    .admin-user-row {
+      font-size: 12px;
+      border-bottom: 1px solid #222;
+      padding: 5px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .admin-user-row b {
+      color: gold;
+    }
+
+    .admin-user-row i {
+      color: #00ffcc;
+      font-style: normal;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <div id="screen-login" class="card">
+      <h1 style="color:#007bff;">ForkBank 5.6</h1>
+      <input type="text" id="username" placeholder="Логин">
+      <input type="password" id="userpass" placeholder="Пароль">
+      <button id="login-btn">ВОЙТИ</button>
+    </div>
+
+    <div id="screen-main" class="card hidden">
+      <div id="user-info" style="color:#888; font-size: 14px; margin-bottom: 10px;"></div>
+      <div class="balance-box"><span id="balance">0</span> D</div>
+
+      <div class="clicker-section" style="margin-top:10px;">
+        <button id="click-btn">КЛИК (+10 D)</button>
+        <div id="piggy-val" style="color:gold; font-size:28px; margin:5px; font-weight:bold;">0 D</div>
+        <button id="withdraw-btn" style="background:#6f42c1;">ВЫВЕСТИ В БАНК</button>
+      </div>
+
+      <input type="text" id="promo-input" placeholder="Промокод">
+      <button id="apply-promo-btn" style="background:#6f42c1;">ОК</button>
+
+      <div class="card" style="border: 1px solid gold; background: #161d29; margin-top: 10px; padding: 10px;">
+        <h4 style="margin:5px; color:gold;">🎰 КАЗИНО</h4>
+        <div id="casino-anim" style="font-size:32px; margin:10px; font-weight:bold; color:gold;">1.0X</div>
+        <input type="number" id="bet-amt" value="10">
+        <button id="spin-btn" style="background:#ff4b2b;">РИСКНУТЬ</button>
+      </div>
+
+      <div class="registry-box">
+        <div class="registry-title">Реестр (ID для перевода)</div>
+        <div id="ui-registry-list">...</div>
+      </div>
+
+      <button id="send-btn" style="background:#28a745;">💸 ПЕРЕВОД</button>
+      <button id="access-btn" style="opacity:0; background:none; border:none; height:2px;">.</button>
+      <button id="logout-btn" style="background:#222; font-size:12px;">ВЫЙТИ</button>
+    </div>
+  </div>
+
+  <button id="admin-btn">П</button>
+
+  <div id="modal-admin" class="modal">
+    <h2 style="color:gold; margin: 0 0 10px 0;">ПРЕЗИДЕНТ</h2>
+    <button id="adm-list-btn" style="background:#17a2b8;">📊 СПИСОК С БАЛАНСАМИ</button>
+    <div id="admin-users-list" class="admin-list-container hidden"></div>
+
+    <button id="adm-promo-btn">🎁 СОЗДАТЬ ПРОМО</button>
+    <button id="adm-luck-btn">⚙️ УДАЧА</button>
+    <button id="adm-status-btn">👑 СТАТУС</button>
+    <button id="adm-edit">💰 БАЛАНС</button>
+    <button id="adm-delete-btn" style="background:#dc3545;">❌ УДАЛИТЬ АКК</button>
+    <button onclick="closeModals()" style="background:#222; margin-top:10px;">ЗАКРЫТЬ</button>
+  </div>
+
+  <div id="overlay" onclick="closeModals()"></div>
+
+  <script type="module">
+    import {
+      Client,
+      Databases,
+      ID,
+      Query
+    } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.1/+esm";
+    const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject('695f9aae003cc43e58d4');
+    const databases = new Databases(client);
+    const DB = '695f9bbc00302230a3eb',
+      COL = 'users';
+    const app = {
+      user: null,
+      allUsers: [],
+      piggy: 0,
+      activePromos: {},
+      luckMode: 'normal',
+      lastActionTime: 0,
+      async init() {
+        window.closeModals = () => {
+          document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+          document.getElementById('overlay').style.display = 'none';
+          document.getElementById('admin-users-list').classList.add('hidden');
+        };
+        document.getElementById('login-btn').onclick = () => this.login();
+        document.getElementById('click-btn').onclick = () => {
+          if (this.user && this.user.status !== 'banned') {
+            this.piggy += 10;
+            document.getElementById('piggy-val').innerText = this.piggy + " D";
+          }
+        };
+        document.getElementById('withdraw-btn').onclick = () => this.withdrawPiggy();
+        document.getElementById('apply-promo-btn').onclick = () => this.applyPromo();
+        document.getElementById('spin-btn').onclick = () => this.playCasino();
+        document.getElementById('send-btn').onclick = () => this.sendMoney();
+        document.getElementById('access-btn').onclick = () => {
+          if (prompt("КОД:") === "VYA_chsv") document.getElementById('admin-btn').style.display = 'block';
+        };
+        document.getElementById('admin-btn').onclick = () => {
+          document.getElementById('modal-admin').style.display = 'block';
+          document.getElementById('overlay').style.display = 'block';
+        };
+        document.getElementById('adm-list-btn').onclick = () => this.toggleAdminList();
+        document.getElementById('adm-promo-btn').onclick = () => {
+          const c = prompt("Код:");
+          const v = parseInt(prompt("Сумма:"));
+          if (c && v) this.activePromos[c] = v;
+        };
+        document.getElementById('adm-luck-btn').onclick = () => {
+          const m = prompt("1-Hard, 2-Norm, 3-Easy");
+          this.luckMode = m === '3' ? 'easy' : m === '1' ? 'hard' : 'normal';
+          alert("Режим: " + this.luckMode);
+        };
+        document.getElementById('adm-status-btn').onclick = () => this.adminSetStatus();
+        document.getElementById('adm-edit').onclick = () => this.adminEdit();
+        document.getElementById('adm-delete-btn').onclick = () => this.adminDelete();
+        document.getElementById('logout-btn').onclick = () => {
+          localStorage.clear();
+          location.reload();
+        };
+        const saved = localStorage.getItem('fork_session');
+        if (saved) {
+          const {
+            n,
+            p
+          } = JSON.parse(saved);
+          this.login(n, p, true);
+        }
+      },
+      toggleAdminList() {
+        const list = document.getElementById('admin-users-list');
+        if (list.classList.contains('hidden')) {
+          list.classList.remove('hidden');
+          list.innerHTML = this.allUsers.map(u => `
+                    <div class="admin-user-row">
+                        <span>[${u.user_id}] <b>${u.name}</b></span>
+                        <i>${u.balance} D</i>
+                    </div>
+                `).join('');
+        } else {
+          list.classList.add('hidden');
+        }
+      },
+      async sync(newBal) {
+        this.lastActionTime = Date.now();
+        const finalBal = Math.floor(newBal);
+        this.user.balance = finalBal;
+        document.getElementById('balance').innerText = finalBal;
+        try {
+          await databases.updateDocument(DB, COL, this.user.$id, {
+            balance: finalBal
+          });
+        } catch (e) {}
+      },
+      async withdrawPiggy() {
+        if (this.piggy <= 0) return;
+        const toAdd = this.piggy;
+        this.piggy = 0;
+        document.getElementById('piggy-val').innerText = "0 D";
+        await this.sync(Number(this.user.balance) + toAdd);
+      },
+      async applyPromo() {
+        const c = document.getElementById('promo-input').value.trim();
+        if (this.activePromos[c]) {
+          const b = this.activePromos[c];
+          delete this.activePromos[c];
+          await this.sync(Number(this.user.balance) + b);
+          alert(`Успех: +${b} D`);
+          document.getElementById('promo-input').value = "";
+        }
+      },
+      async playCasino() {
+        const bet = parseInt(document.getElementById('bet-amt').value);
+        if (!bet || bet > this.user.balance) return;
+        const btn = document.getElementById('spin-btn');
+        btn.disabled = true;
+        const interval = setInterval(() => {
+          document.getElementById('casino-anim').innerText = [0.5, 1, 2, 5, 10][Math.floor(Math.random() * 5)] + "X";
+        }, 70);
+        setTimeout(async () => {
+          clearInterval(interval);
+          let res;
+          const roll = Math.random();
+          if (this.luckMode === 'easy') res = roll < 0.2 ? 10 : roll < 0.5 ? 5 : roll < 0.8 ? 2 : 1;
+          else if (this.luckMode === 'hard') res = roll < 0.6 ? 0.5 : roll < 0.9 ? 1 : 2;
+          else res = roll < 0.3 ? 0.5 : roll < 0.7 ? 1 : roll < 0.9 ? 2 : roll < 0.98 ? 5 : 10;
+          document.getElementById('casino-anim').innerText = res + "X";
+          await this.sync((Number(this.user.balance) - bet) + Math.floor(bet * res));
+          btn.disabled = false;
+        }, 800);
+      },
+      async login(nInput, pInput, isAuto = false) {
+        const n = nInput || document.getElementById('username').value.trim();
+        const p = pInput || document.getElementById('userpass').value.trim();
+        if (!n || !p) return;
+        try {
+          const res = await databases.listDocuments(DB, COL, [Query.equal("name", n)]);
+          if (res.documents.length > 0) {
+            if (res.documents[0].passworld !== p) return;
+            this.user = res.documents[0];
+          } else {
+            if (isAuto) return;
+            this.user = await databases.createDocument(DB, COL, ID.unique(), {
+              name: n,
+              passworld: p,
+              balance: 100,
+              user_id: Math.floor(Math.random() * 900) + 100,
+              status: 'user'
+            });
+          }
+          localStorage.setItem('fork_session', JSON.stringify({
+            n,
+            p
+          }));
+          document.getElementById('screen-login').classList.add('hidden');
+          document.getElementById('screen-main').classList.remove('hidden');
+          await this.refreshData();
+          setInterval(() => {
+            if (Date.now() - this.lastActionTime > 15000) this.refreshData();
+          }, 10000);
+        } catch (e) {}
+      },
+      async refreshData() {
+        try {
+          const res = await databases.listDocuments(DB, COL);
+          this.allUsers = res.documents;
+          document.getElementById('ui-registry-list').innerHTML = this.allUsers.map(u =>
+            `<div class="registry-item">${u.name} <span>ID: ${u.user_id}</span></div>`
+          ).join('');
+          if (this.user) {
+            const fresh = this.allUsers.find(u => u.$id === this.user.$id);
+            if (fresh) {
+              if (Number(fresh.balance) >= Number(this.user.balance)) this.user.balance = fresh.balance;
+              this.user.status = fresh.status;
+              document.getElementById('balance').innerText = this.user.balance;
+              document.getElementById('user-info').innerHTML = `<span class="${this.user.status==='vip'?'status-vip':''}">${this.user.status==='vip'?'👑 ':''}${this.user.name}</span> (ID: ${this.user.user_id})`;
+            }
+          }
+        } catch (e) {}
+      },
+      async sendMoney() {
+        const tid = prompt("ID получателя:");
+        const amt = parseInt(prompt("Сумма:"));
+        const target = this.allUsers.find(u => u.user_id == tid);
+        if (!target || amt > this.user.balance || amt <= 0) return alert("Ошибка!");
+        const fee = (this.user.status === 'vip' || target.status === 'vip') ? 0 : Math.floor(amt * 0.1);
+        await databases.updateDocument(DB, COL, this.user.$id, {
+          balance: this.user.balance - amt
+        });
+        await databases.updateDocument(DB, COL, target.$id, {
+          balance: target.balance + (amt - fee)
+        });
+        await this.sync(this.user.balance - amt);
+        alert("Переведено!");
+      },
+      async adminSetStatus() {
+        const id = prompt("ID:");
+        const t = this.allUsers.find(u => u.user_id == id);
+        if (t) {
+          const s = prompt("1-User, 2-VIP, 3-Ban");
+          const fs = s === '2' ? 'vip' : s === '3' ? 'banned' : 'user';
+          await databases.updateDocument(DB, COL, t.$id, {
+            status: fs
+          });
+          this.refreshData();
+        }
+      },
+      async adminEdit() {
+        const id = prompt("ID:");
+        const v = parseInt(prompt("Сумма (+/-):"));
+        const t = this.allUsers.find(u => u.user_id == id);
+        if (t) {
+          await databases.updateDocument(DB, COL, t.$id, {
+            balance: t.balance + v
+          });
+          this.refreshData();
+        }
+      },
+      async adminDelete() {
+        const id = prompt("ID:");
+        const t = this.allUsers.find(u => u.user_id == id);
+        if (t && confirm("Удалить?")) {
+          await databases.deleteDocument(DB, COL, t.$id);
+          this.refreshData();
+        }
+      }
+    };
+    app.init();
+  </script>
+</body>
+
+</html>
+    <script type="module" src="./script.js"></script>
+
+  </body>
+  
+</html>

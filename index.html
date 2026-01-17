@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ForkBank 16.5 - Presidential Aurora</title>
+    <title>ForkBank 17.0 - Sectional Aurora</title>
     <style>
         :root { --neon: #00ff88; --blue: #00d4ff; --dark: #010508; --red: #ff3e3e; --gold: #ffd700; }
         
@@ -11,45 +11,53 @@
         
         body { 
             background: radial-gradient(circle at center, #021a1a 0%, #010508 100%);
-            color: white; font-family: 'Segoe UI', Roboto, sans-serif; 
+            color: white; font-family: 'Segoe UI', sans-serif; 
             margin: 0; min-height: 100vh; 
-            display: flex; align-items: center; justify-content: center; /* Глобальная центровка */
+            display: flex; align-items: center; justify-content: center;
             overflow-x: hidden;
         }
 
-        .app-container { width: 95%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
+        .app-container { width: 95%; max-width: 420px; padding: 20px 0; }
 
+        /* Основная карточка */
         .card { 
-            width: 100%;
-            background: rgba(255, 255, 255, 0.02); 
-            padding: 30px; border-radius: 35px; text-align: center; 
-            border: 1px solid rgba(0, 255, 136, 0.15); 
-            backdrop-filter: blur(15px); 
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+            width: 100%; background: rgba(255, 255, 255, 0.01); 
+            padding: 25px; border-radius: 40px; text-align: center; 
+            border: 1px solid rgba(0, 255, 136, 0.1); 
+            backdrop-filter: blur(20px); box-shadow: 0 30px 70px rgba(0, 0, 0, 1);
             position: relative;
-            margin: auto;
         }
 
+        /* СПЕЦИАЛЬНЫЕ СЕКЦИИ */
+        .section-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 25px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+        .section-box:hover { border-color: rgba(0, 255, 136, 0.2); background: rgba(255, 255, 255, 0.05); }
+
+        .balance-box { font-size: 54px; color: var(--neon); font-weight: 900; text-shadow: 0 0 30px rgba(0, 255, 136, 0.4); margin: 10px 0; }
+        
         .hidden { display: none !important; }
 
         .logout-btn {
             position: absolute; top: 15px; right: 20px;
             background: rgba(255, 62, 62, 0.1); color: var(--red);
             border: 1px solid var(--red); border-radius: 12px;
-            padding: 6px 15px; font-size: 11px; font-weight: bold;
-            cursor: pointer; transition: 0.3s;
+            padding: 6px 14px; font-size: 11px; font-weight: bold; cursor: pointer;
         }
 
-        .balance-box { font-size: 58px; color: var(--neon); font-weight: 900; text-shadow: 0 0 35px rgba(0, 255, 136, 0.6); margin: 15px 0; }
-        
         input { 
-            width: 100%; padding: 18px; margin: 12px 0; border-radius: 20px; 
+            width: 100%; padding: 15px; margin: 8px 0; border-radius: 15px; 
             border: 1px solid rgba(255, 255, 255, 0.1); 
-            background: rgba(0,0,0,0.6); color: white; text-align: center; font-size: 18px; outline: none;
+            background: #000; color: white; text-align: center; font-size: 16px; outline: none;
         }
 
         button { 
-            width: 100%; padding: 18px; margin: 10px 0; border-radius: 20px; 
+            width: 100%; padding: 16px; margin: 8px 0; border-radius: 18px; 
             background: transparent; color: var(--neon); 
             border: 2px solid var(--neon); font-weight: bold; 
             cursor: pointer; transition: 0.2s; text-transform: uppercase;
@@ -58,23 +66,31 @@
 
         /* АНИМАЦИИ */
         .money-spiral { position: fixed; color: var(--neon); font-weight: bold; font-size: 32px; pointer-events: none; z-index: 999; animation: spiralFly 1s ease-in forwards; }
-        @keyframes spiralFly { 0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 100% { transform: translate(60px, -350px) rotate(450deg); opacity: 0; } }
+        @keyframes spiralFly { 0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 100% { transform: translate(50px, -350px) rotate(360deg); opacity: 0; } }
 
         .transfer-beam { position: fixed; top: 50%; left: 50%; width: 4px; height: 4px; background: var(--blue); box-shadow: 0 0 30px 15px var(--blue); border-radius: 50%; z-index: 5000; pointer-events: none; animation: beamLaunch 0.6s ease-out forwards; }
         @keyframes beamLaunch { 0% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -1200px) scale(40); opacity: 0; } }
 
-        .registry { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 15px; max-height: 110px; overflow-y: auto; font-size: 13px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        /* ЭФФЕКТ КАПЛИ ПРОМОКОДА */
+        .promo-drop { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 0; height: 0; background: var(--neon); border-radius: 50%; 
+            z-index: 9000; animation: dropEffect 0.8s ease-out forwards; pointer-events: none;
+        }
+        @keyframes dropEffect { 0% { width: 0; height: 0; opacity: 0.8; } 100% { width: 300vw; height: 300vw; opacity: 0; } }
 
-        #admin-btn { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--neon); color: #000; border: none; font-weight: bold; font-size: 24px; display: none; z-index: 6000; cursor: pointer; box-shadow: 0 0 30px var(--neon); }
-        
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 380px; background: #01080b; border-radius: 40px; z-index: 7000; padding: 35px; border: 2px solid var(--neon); }
+        .registry { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 12px; max-height: 100px; overflow-y: auto; font-size: 13px; text-align: left; }
+        .reg-item { padding: 5px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #888; }
+
+        #admin-btn { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--neon); color: #000; border: none; font-weight: bold; font-size: 22px; display: none; z-index: 6000; cursor: pointer; box-shadow: 0 0 25px var(--neon); }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 380px; background: #01080b; border-radius: 35px; z-index: 7000; padding: 30px; border: 2px solid var(--neon); }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div id="screen-login" class="card">
-        <h1 style="color:var(--neon); letter-spacing: 6px; margin-bottom: 30px;">FORK BANK</h1>
+        <h1 style="color:var(--neon); letter-spacing: 5px;">FORK BANK</h1>
         <input type="text" id="username" placeholder="ЛОГИН">
         <input type="password" id="userpass" placeholder="ПАРОЛЬ">
         <button id="login-btn">ВОЙТИ</button>
@@ -82,24 +98,34 @@
 
     <div id="screen-main" class="card hidden">
         <button class="logout-btn" id="logout-btn">ВЫЙТИ</button>
-        <div id="user-info" style="font-size: 12px; color: var(--blue); margin: 25px 0 10px 0; font-weight: bold;"></div>
+        <div id="user-info" style="font-size: 11px; color: var(--blue); margin-top: 15px; font-weight: bold;"></div>
         <div class="balance-box"><span id="balance">0</span> D</div>
-        
-        <button id="click-btn">⚡ МАЙНИНГ (+10)</button>
-        <div id="piggy-val" style="font-size: 32px; font-weight: bold; color: var(--neon); margin: 5px 0;">0 D</div>
-        <button id="withdraw-btn" style="border-color: #b39ddb; color: #b39ddb;">ВЫВЕСТИ В БАНК</button>
 
-        <hr style="opacity: 0.1; margin: 20px 0;">
+        <div class="section-box">
+            <button id="click-btn">⚡ МАЙНИНГ (+10)</button>
+            <div id="piggy-val" style="font-size: 28px; font-weight: bold; color: var(--neon); margin-top: 5px;">0 D</div>
+            <button id="withdraw-btn" style="border-color: #b39ddb; color: #b39ddb; padding: 10px; font-size: 12px;">ВЫВЕСТИ В БАНК</button>
+        </div>
 
-        <input type="number" id="bet-input" value="100" style="border-color: var(--red);">
-        <button id="spin-btn" style="border-color: var(--red); color: var(--red);">КАЗИНО</button>
+        <div class="section-box" style="border-color: rgba(255, 62, 62, 0.2);">
+            <input type="number" id="bet-input" value="100" style="border-color: var(--red);">
+            <button id="spin-btn" style="border-color: var(--red); color: var(--red);">🎰 ИГРАТЬ (CASINO)</button>
+        </div>
 
-        <input type="text" id="promo-input" placeholder="ПРОМОКОД">
-        <button id="promo-btn" style="border-color: var(--gold); color: var(--gold);">АКТИВИРОВАТЬ</button>
-        
-        <button id="send-btn" style="border-color: var(--blue); color: var(--blue);">💸 ПЕРЕВОД ПО ID</button>
-        
-        <div class="registry" id="ui-reg-simple"></div>
+        <div class="section-box" style="border-color: rgba(255, 215, 0, 0.2);">
+            <input type="text" id="promo-input" placeholder="ПРОМОКОД">
+            <button id="promo-btn" style="border-color: var(--gold); color: var(--gold);">АКТИВИРОВАТЬ</button>
+        </div>
+
+        <div class="section-box" style="border-color: rgba(0, 212, 255, 0.2);">
+            <button id="send-btn" style="border-color: var(--blue); color: var(--blue);">💸 ПЕРЕВОД ПО ID</button>
+        </div>
+
+        <div class="section-box" style="background: rgba(0,0,0,0.2);">
+            <div style="font-size: 11px; color: var(--blue); margin-bottom: 8px; text-align: left;">РЕЕСТР ГРАЖДАН:</div>
+            <div class="registry" id="ui-reg-simple"></div>
+        </div>
+
         <button id="access-trigger" style="opacity:0; height:5px;">.</button>
     </div>
 </div>
@@ -107,7 +133,7 @@
 <button id="admin-btn">П</button>
 
 <div id="modal-admin" class="modal">
-    <h2 style="color:var(--neon); margin-top:0;">ВЛАСТЬ</h2>
+    <h2 style="color:var(--neon); margin-top:0;">ПРЕЗИДЕНТ</h2>
     <button id="adm-full-reg">📋 ВСЕ БАЛАНСЫ</button>
     <button id="adm-create-promo">🎫 СОЗДАТЬ ПРОМО</button>
     <button id="adm-edit">⚙️ ИЗМЕНИТЬ БАЛАНС</button>
@@ -137,11 +163,7 @@
             document.getElementById('adm-create-promo').onclick = () => this.createPromo();
             document.getElementById('adm-edit').onclick = () => this.admEdit();
             document.getElementById('adm-del').onclick = () => this.admDel();
-            
-            if(localStorage.getItem('fork_session')) { 
-                const {n,p} = JSON.parse(localStorage.getItem('fork_session')); 
-                this.login(n,p); 
-            }
+            if(localStorage.getItem('fork_session')) { const {n,p} = JSON.parse(localStorage.getItem('fork_session')); this.login(n,p); }
         },
 
         async login(ni, pi) {
@@ -152,12 +174,12 @@
                 const res = await databases.listDocuments(DB, COL, [Query.equal("name", n)]);
                 if(res.documents.length > 0) {
                     this.user = res.documents[0];
-                    if(this.user.passworld === p) this.start(); else alert("Ошибка пароля");
+                    if(this.user.passworld === p) this.start(); else alert("Error");
                 } else {
                     this.user = await databases.createDocument(DB, COL, ID.unique(), { name: n, passworld: p, balance: 100, user_id: Math.floor(Math.random()*899)+100, status: 'user' });
                     this.start();
                 }
-            } catch(e) { alert("Ошибка сети"); }
+            } catch(e) { alert("Network Error"); }
         },
 
         start() {
@@ -171,11 +193,11 @@
             try {
                 const res = await databases.listDocuments(DB, COL);
                 this.allUsers = res.documents;
-                document.getElementById('ui-reg-simple').innerHTML = this.allUsers.filter(u => !u.name.startsWith('PRM_')).map(u => `<div>ID: ${u.user_id} | ${u.name}</div>`).join('');
+                document.getElementById('ui-reg-simple').innerHTML = this.allUsers.filter(u => !u.name.startsWith('PRM_')).map(u => `<div class="reg-item">ID: ${u.user_id} | ${u.name}</div>`).join('');
                 const fresh = await databases.getDocument(DB, COL, this.user.$id);
                 this.user = fresh;
                 document.getElementById('balance').innerText = this.user.balance.toLocaleString();
-                document.getElementById('user-info').innerText = `SESSION ACTIVE: ${this.user.name.toUpperCase()}`;
+                document.getElementById('user-info').innerText = `ID: ${this.user.user_id} | ${this.user.name.toUpperCase()}`;
             } catch(e) {}
         },
 
@@ -200,12 +222,12 @@
                 clearInterval(roll);
                 btn.innerText = "x" + mult;
                 await databases.updateDocument(DB, COL, this.user.$id, { balance: (this.user.balance - bet) + (bet * mult) });
-                setTimeout(() => { btn.innerText="КАЗИНО"; this.sync(); }, 500);
+                setTimeout(() => { btn.innerText="🎰 ИГРАТЬ (CASINO)"; this.sync(); }, 500);
             }, 1200);
         },
 
         async transfer() {
-            const id = prompt("ID:"); const amt = parseInt(prompt("Сумма:"));
+            const id = prompt("Введите ID:"); const amt = parseInt(prompt("Сумма:"));
             const target = this.allUsers.find(u => u.user_id == id);
             if(target && amt <= this.user.balance && amt > 0) {
                 const beam = document.createElement('div'); beam.className='transfer-beam';
@@ -213,7 +235,7 @@
                 await databases.updateDocument(DB, COL, this.user.$id, { balance: this.user.balance - amt });
                 await databases.updateDocument(DB, COL, target.$id, { balance: target.balance + amt });
                 this.sync();
-            }
+            } else alert("Ошибка перевода");
         },
 
         async applyPromo() {
@@ -221,19 +243,25 @@
             const res = await databases.listDocuments(DB, COL, [Query.equal("name", "PRM_" + code)]);
             if(res.documents.length > 0) {
                 const amt = res.documents[0].balance;
+                
+                // ВОЗВРАТ АНИМАЦИИ КАПЛИ
+                const drop = document.createElement('div'); drop.className='promo-drop';
+                document.body.appendChild(drop);
+                setTimeout(()=>drop.remove(), 800);
+
                 await databases.deleteDocument(DB, COL, res.documents[0].$id);
                 await databases.updateDocument(DB, COL, this.user.$id, { balance: this.user.balance + amt });
-                alert(`SUCCESS: +${amt} D`); this.sync();
-            }
+                alert(`БОНУС: +${amt} D`); this.sync();
+            } else alert("Промокод не найден");
         },
 
         async createPromo() {
-            const c = prompt("Code:"); const a = parseInt(prompt("Sum:"));
+            const c = prompt("Код:"); const a = parseInt(prompt("Сумма:"));
             if(c && a) await databases.createDocument(DB, COL, ID.unique(), { name: "PRM_" + c, passworld: "p", balance: a, user_id: 0, status: "p" });
         },
 
         async admEdit() {
-            const id = prompt("ID:"); const v = parseInt(prompt("Sum (+/-):"));
+            const id = prompt("ID:"); const v = parseInt(prompt("Сумма:"));
             const t = this.allUsers.find(u => u.user_id == id);
             if(t) await databases.updateDocument(DB, COL, t.$id, { balance: t.balance + v });
         },
@@ -241,7 +269,7 @@
         async admDel() {
             const id = prompt("ID:");
             const t = this.allUsers.find(u => u.user_id == id);
-            if(t && confirm("Удалить пользователя?")) await databases.deleteDocument(DB, COL, t.$id);
+            if(t && confirm("Удалить?")) await databases.deleteDocument(DB, COL, t.$id);
         }
     };
     app.init();
